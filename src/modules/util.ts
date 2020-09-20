@@ -102,7 +102,7 @@ export const isNumber = (item: any): boolean => {
 
 export const getAndMatchLocation = async (locationRule: LocationRule, debug: boolean): Promise < boolean > => {
     const response = await getLocationFromCloudflare(debug) || await getLocationFromIPAPI(debug);
-    return parseResponse(response, locationRule, debug);
+    return response ? parseResponse(response, locationRule, debug) : true;
 }
 
 export const matchPath = (pathname: string, control: string): boolean => {
