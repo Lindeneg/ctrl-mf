@@ -55,7 +55,6 @@ export class ControlMouseflow {
     isOnDesiredPage(): boolean {
         const currentPage = window.document.location.pathname;
         let wasNotMatched: boolean = false;
-        let result: boolean = false;
         if (this.optionalRule.pageRules.length > 0) {
             for (let i: number = 0; i < this.optionalRule.pageRules.length; i++) {
                 const pageRule: PageRule = this.optionalRule.pageRules[i];
@@ -70,11 +69,11 @@ export class ControlMouseflow {
                 }
             }
         }
-        if (!wasNotMatched && !result && isNumber(this.optionalRule.rest.recordingRate) && recordingRateMatch(this.optionalRule.rest.recordingRate)) {
+        if (!wasNotMatched && isNumber(this.optionalRule.rest.recordingRate) && recordingRateMatch(this.optionalRule.rest.recordingRate)) {
             this.log('page \'' + currentPage + '\' not matched in rule set | recordingRate matched');
             return true;
         }
-        !wasNotMatched && !result ? this.log('page \'' + currentPage + '\' not matched in rule set | recordingRate not matched') : null;
+        !wasNotMatched ? this.log('page \'' + currentPage + '\' not matched in rule set | recordingRate not matched') : null;
         return false;
     }
 
