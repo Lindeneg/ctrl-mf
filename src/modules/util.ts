@@ -56,14 +56,14 @@ const parseIPAPIResponse = (json: {
 const matchLocationRule = (country: string, locationRule: LocationRule, debug: boolean): boolean => {
     if (locationRule.countryCodes.length > 0) {
         for (let i: number = 0; i < locationRule.countryCodes.length; i++) {
-            if (locationRule.countryCodes[i].toLowerCase() === country && locationRule.include) {
-                logger(debug, 'matched country: ' + country);
-                return true;
+            if (locationRule.countryCodes[i].toLowerCase() === country) {
+                logger(debug, 'matched country: ' + country + ' include: ' + locationRule.include);
+                return locationRule.include;
             }
         }
     }
-    logger(debug, 'not matched country: ' + country);
-    return false;
+    logger(debug, 'not matched country: ' + country + ' include: ' + !locationRule.include);
+    return !locationRule.include;
 }
 
 export const logger = (debug: boolean, msg: string): void => {
