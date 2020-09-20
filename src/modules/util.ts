@@ -107,12 +107,6 @@ export const getAndMatchLocation = async (locationRule: LocationRule, debug: boo
 
 export const matchPath = (pathname: string, control: string): boolean => {
     pathname = pathname.toLowerCase(), control = control.toLowerCase();
-    let result: boolean;
-    if (pathname.indexOf('.') > -1) {
-        const reg: RegExpExecArray = /.+?(?=\.)/.exec(pathname);
-        result = reg ? reg[0] === control : pathname === control;
-    } else {
-        result = pathname === control;
-    }
-    return result;
+    const reg: RegExpExecArray = /.+?(?=\.)/.exec(pathname);
+    return reg ? reg[0] === control : pathname === control;
 }

@@ -65,6 +65,7 @@ export class ControlMouseflow {
                     } else {
                         this.log('page \'' + currentPage + '\' matched in rule set | recordingRate not matched');
                         wasNotMatched = true;
+                        break;
                     }
                 }
             }
