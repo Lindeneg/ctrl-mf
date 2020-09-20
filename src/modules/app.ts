@@ -64,6 +64,7 @@ export class ControlMouseflow {
                         this.log('page \'' + currentPage + '\' matched in rule set | recordingRate matched');
                         return true;
                     } else {
+                        this.log('page \'' + currentPage + '\' matched in rule set | recordingRate not matched');
                         wasNotMatched = true;
                     }
                 }
@@ -73,7 +74,7 @@ export class ControlMouseflow {
             this.log('page \'' + currentPage + '\' not matched in rule set | recordingRate matched');
             return true;
         }
-        this.log('page \'' + currentPage + '\' not matched in rule set | recordingRate not matched');
+        !wasNotMatched && !result ? this.log('page \'' + currentPage + '\' not matched in rule set | recordingRate not matched') : null;
         return false;
     }
 

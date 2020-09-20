@@ -43,14 +43,14 @@ Record all available pages
 window.ControlMouseflowInit({
     websiteId: '{website-id-from-mouseflow-account}',
     locationRule: {
-    include: true,
-    countryCodes: [
-      'DK',
-      'SE',
-      'no',
-      'de'
-    ]
-  }
+        include: true,
+        countryCodes: [
+          'DK',
+          'SE',
+          'no',
+          'de'
+        ]
+    }
 });
 
 
@@ -64,12 +64,12 @@ Record all available pages
 window.ControlMouseflowInit({
     websiteId: '{website-id-from-mouseflow-account}',
     locationRule: {
-    include: false,
-    countryCodes: [
-      'DK',
-      'SE'
-    ]
-  }
+        include: false,
+        countryCodes: [
+          'DK',
+          'SE'
+        ]
+    }
 });
 
 /*
