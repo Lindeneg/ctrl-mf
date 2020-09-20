@@ -18,7 +18,7 @@ export interface LocationRule {
 export interface Config {
     websiteId: string,
     locationRule: LocationRule,
-    optionalRule?: OptionalRule,
-    debug?: boolean,
-    isValid?: boolean
+    optionalRule ? : OptionalRule,
+    debug ? : boolean,
+    isValid ? : boolean
 }

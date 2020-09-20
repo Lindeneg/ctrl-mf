@@ -44,7 +44,7 @@ export class ControlMouseflow {
             if (this.sessionInitiated) {
                 this.injectMouseflow();
             } else {
-                (async function(instance: ControlMouseflow) {
+                (async function (instance: ControlMouseflow) {
                     const shouldInject = await instance.isFromDesiredCountry();
                     shouldInject ? instance.injectMouseflow() : null;
                 })(this);
@@ -77,7 +77,7 @@ export class ControlMouseflow {
         return false;
     }
 
-    async isFromDesiredCountry(): Promise<boolean> {
+    async isFromDesiredCountry(): Promise < boolean > {
         return await getAndMatchLocation(this.locationRule, this.debug);
     }
 

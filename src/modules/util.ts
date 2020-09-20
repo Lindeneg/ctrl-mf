@@ -4,31 +4,26 @@ import {
 } from './types';
 
 
-const get = async (url: string, debug: boolean): Promise < string > => {
-    let result: string = '';
-    try {
-        const res: Response = await fetch(url);
-        if (res.status === 200) {
-            result = await res.text();
-        }
-    } catch (err) {
-        logger(debug, err);
-    } finally {
-        return result;
+const get = async (url: string): Promise < string > => {
+    const res: Response = await fetch(url);
+    if (res.status === 200) {
+        return res.text();
+    } else {
+        return '';
     }
 }
 
 const getLocationFromCloudflare = (debug: boolean): Promise < string > => {
     logger(debug, 'fetching client location from cloudflare');
-    return get('/cdn-cgi/trace', debug);
+    return get('/cdn-cgi/trace');
 }
 
 const getLocationFromIPAPI = (debug: boolean): Promise < string > => {
     logger(debug, 'fetching client location from ipapi.co');
-    return get('https://ipapi.co/json/', debug);
+    return get('https://ipapi.co/json/');
 }
 
-const parseResponse = async (response: string, locationRule: LocationRule, debug: boolean): Promise<boolean> => {
+const parseResponse = async (response: string, locationRule: LocationRule, debug: boolean): Promise < boolean > => {
     let result: boolean = false;
     try {
         const json: {
@@ -86,7 +81,12 @@ export const validateConfig = (config: Config): Config => {
     if (config.locationRule.include === undefined || config.locationRule.countryCodes === undefined || (config.locationRule.countryCodes !== undefined && config.locationRule.countryCodes.length <= 0)) {
         throw Error('invalid locationRule provided');
     }
-    config.optionalRule = config.optionalRule || {pageRules: [], rest: {recordingRate: 100}};
+    config.optionalRule = config.optionalRule || {
+        pageRules: [],
+        rest: {
+            recordingRate: 100
+        }
+    };
     config.debug = config.debug || false;
     config.isValid = true;
     return config;
@@ -100,7 +100,7 @@ export const isNumber = (item: any): boolean => {
     return item !== undefined && typeof item === 'number' && !Number.isNaN(item);
 }
 
-export const getAndMatchLocation = async (locationRule: LocationRule, debug: boolean): Promise<boolean> => {
+export const getAndMatchLocation = async (locationRule: LocationRule, debug: boolean): Promise < boolean > => {
     const response = await getLocationFromCloudflare(debug) || await getLocationFromIPAPI(debug);
     return parseResponse(response, locationRule, debug);
 }
