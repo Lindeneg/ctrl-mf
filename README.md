@@ -113,5 +113,6 @@ window.ControlMouseflowInit({
 ```
 
 ### Todo
-- Implement more location lookup calls for fallback
+- Implement more location lookup for fallback calls
 - Allow the use of an array with pathname strings in a pageRule object
+- Default behavior on lookup exceptions
