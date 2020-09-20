@@ -1,0 +1,4 @@
+#!/bin/bash
+
+browserify ./dist/index.js > ./dist/bundle.js
+node-minify --compressor uglify-es --input './dist/bundle.js' --output './dist/bundle.js'
