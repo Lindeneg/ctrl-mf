@@ -12,7 +12,8 @@ export interface OptionalRule {
 
 export interface LocationRule {
     include: boolean,
-    countryCodes: string[]
+    countryCodes: string[],
+    shouldRecordOnError ? : boolean;
 }
 
 export interface Config {

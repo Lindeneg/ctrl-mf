@@ -40,12 +40,18 @@ export class ControlMouseflow {
     }
 
     init(): void {
+        // ensure client is on a desired page
         if (this.onDesiredPage) {
+            // if a session cookie is also found
             if (this.sessionInitiated) {
+                // inject mouseflow to continue the session
                 this.injectMouseflow();
             } else {
+                // client is still on the correct page but location is unknown
                 (async function (instance: ControlMouseflow) {
+                    // fetch the location and match it with the location rule
                     const shouldInject = await instance.isFromDesiredCountry();
+                    // inject mouseflow if the match returns true
                     shouldInject ? instance.injectMouseflow() : null;
                 })(this);
             }
@@ -58,22 +64,28 @@ export class ControlMouseflow {
         if (this.optionalRule.pageRules.length > 0) {
             for (let i: number = 0; i < this.optionalRule.pageRules.length; i++) {
                 const pageRule: PageRule = this.optionalRule.pageRules[i];
+                // if client is on a desired page
                 if (matchPath(pageRule.pathname, currentPage)) {
+                    // match the configured recording rate for that page
                     if (recordingRateMatch(pageRule.recordingRate)) {
                         this.log('page \'' + currentPage + '\' matched in rule set | recordingRate matched');
                         return true;
                     } else {
                         this.log('page \'' + currentPage + '\' matched in rule set | recordingRate not matched');
+                        // let the function know that a desired page was matched but its recording rate was not
                         wasNotMatched = true;
                         break;
                     }
                 }
             }
         }
+        // ignore pages where wasNotMatched is true -> the dice should only be thrown once
+        // however, if an unmatched page is at play, the configured recording rate for optionalRule.rest should be used
         if (!wasNotMatched && isNumber(this.optionalRule.rest.recordingRate) && recordingRateMatch(this.optionalRule.rest.recordingRate)) {
             this.log('page \'' + currentPage + '\' not matched in rule set | recordingRate matched');
             return true;
         }
+        // final case where an unmatched page also fails to match the configured rest recording rate
         !wasNotMatched ? this.log('page \'' + currentPage + '\' not matched in rule set | recordingRate not matched') : null;
         return false;
     }
@@ -104,6 +116,8 @@ export class ControlMouseflow {
                 validatedConfig.debug
             ).init();
         } else {
+            // exceptions will have be thrown from the validateConfig call
+            // so this part will actually never be reached
             return;
         }
     }
