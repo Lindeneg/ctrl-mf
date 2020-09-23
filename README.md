@@ -13,23 +13,23 @@ ______________________________________
 
 ```typescript
 {
-    websiteId: string,               // mouseflow website id
+    websiteId: string,                // mouseflow website id
     locationRule: {
-        include: boolean,            // false if countryCodes should be excluded else true
-        countryCodes: string[]       // array of ISO 3166-1 alpha-2 country code strings
-        shouldRecordOnError: boolean // false if no record on failed location lookup, default: true
-    },
+        include: boolean,             // false if countryCodes should be excluded else true
+        countryCodes: string[]        // array of ISO 3166-1 alpha-2 country code strings
+        shouldRecordOnError?: boolean // false if no record on failed location lookup
+    },                                // default: true
     optionalRule?: {
-        pageRules: {                 // array of optional page rules
-            pathname: string,        // pathname of the page
-            recordingRate: number    // recording rate of the page (0 < rate <= 100)
+        pageRules: {                  // array of optional page rules
+            pathnames: string[],      // array of pathnames to respect the pageRule
+            recordingRate: number     // recording rate of the pageRule (0 < rate <= 100)
         }[],
         rest: {
-            recordingRate: number    // recording rate for all other pages not specified
-        }
-    }                                // default: {pageRules: [], rest: {recordingRate: 100}}
-    debug?: boolean                  // default: false
-}
+            recordingRate: number     // recording rate for all other pages not specified
+        }                             // default: {pageRules: [], rest: {recordingRate: 100}}
+    }                                 
+    debug?: boolean                   // true if dump debug messages
+}                                     // default: false
 ```
 
 \--- **Examples:**
@@ -87,6 +87,7 @@ Include all other clients
 
 Record 70% of eligible clients on:
     - '/'
+    - '/blog'
 
 Record 30% of eligible clients on:
     - '/contact'
@@ -105,11 +106,11 @@ window.ControlMouseflowInit({
     optionalRule: {
         pageRules: [
           {
-            pathname: '/',
+            pathname: ['/', '/blog'],
             recordingRate: 70
           },
           {
-            pathname: '/contact',
+            pathname: ['/contact'],
             recordingRate: 30
           }
         ],
@@ -122,4 +123,4 @@ window.ControlMouseflowInit({
 
 ### Todo
 - Implement more location lookup for fallback calls
-- Allow the use of an array with pathname strings in a pageRule object
+- Allow regular expressions for pathnames in pageRules

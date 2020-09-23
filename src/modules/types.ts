@@ -1,5 +1,5 @@
 export interface PageRule {
-    pathname: string,
+    pathnames: string[],
     recordingRate: number
 }
 
@@ -22,4 +22,11 @@ export interface Config {
     optionalRule ? : OptionalRule,
     debug ? : boolean,
     isValid ? : boolean
+}
+
+export interface Is {
+    string: (...args: any[]) => boolean,
+    number: (...args: any[]) => boolean,
+    array: (...args: any[]) => boolean,
+    defined: (...args: any) => boolean
 }

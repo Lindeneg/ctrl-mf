@@ -1,12 +1,24 @@
 import {
     LocationRule,
-    Config
+    Config,
+    Is
 } from './types';
 import {
     locationCalls,
     re
 } from './constants';
 
+
+const checkType = (args: any[], compare: (a: any) => boolean): boolean => {
+    if (args.length > 0) {
+        for (let i: number = 0; i < args.length; i++) {
+            if (typeof args[i] !== 'undefined' && !compare(args[i])) {
+                return false;
+            }
+        }
+    }
+    return true && args.length > 0;
+}
 
 const get = async (url: string): Promise < string > => {
     const res: Response = await fetch(url);
@@ -39,28 +51,17 @@ const parseResponse = async (response: string, locationRule: LocationRule, debug
         const json: {
             country: string
         } = JSON.parse(response);
-        result = parseIPAPIResponse(json, locationRule, debug);
+        return matchLocationRule(json.country.toLowerCase(), locationRule, debug);
     } catch (err) {
-        result = parseCloudflareResponse(response, locationRule, debug);
-    }
-    return result;
-}
-
-const parseCloudflareResponse = (res: string, locationRule: LocationRule, debug: boolean): boolean => {
-    const entries: string[] = res.split('\n');
-    for (let i: number = 0; i < entries.length; i++) {
-        const [k, v]: string[] = entries[i].split('=');
-        if (k.toUpperCase() === 'LOC' && matchLocationRule(v.toLowerCase(), locationRule, debug)) {
-            return true;
+        const entries: string[] = response.split('\n');
+        for (let i: number = 0; i < entries.length; i++) {
+            const [k, v]: string[] = entries[i].split('=');
+            if (k.toUpperCase() === 'LOC' && matchLocationRule(v.toLowerCase(), locationRule, debug)) {
+                return true;
+            }
         }
     }
-    return false;
-}
-
-const parseIPAPIResponse = (json: {
-    country: string
-}, locationRule: LocationRule, debug: boolean): boolean => {
-    return matchLocationRule(json.country.toLowerCase(), locationRule, debug);
+    return result;
 }
 
 const matchLocationRule = (country: string, locationRule: LocationRule, debug: boolean): boolean => {
@@ -78,21 +79,42 @@ const matchLocationRule = (country: string, locationRule: LocationRule, debug: b
     return !locationRule.include;
 }
 
+export const is: Is = {
+    string(...args: any[]): boolean {
+        return checkType(args, (a: any): boolean => {
+            return typeof a === 'string';
+        });
+    },
+    number(...args: any[]): boolean {
+        return checkType(args, (a: any): boolean => {
+            return typeof a === 'number' && !isNaN(a);
+        });
+    },
+    array(...args: any[]): boolean {
+        return checkType(args, (a: any): boolean => {
+            return typeof a === 'object' && Array.isArray(a);
+        });
+    },
+    defined(...args: any[]): boolean {
+        return checkType(args, (a: any): boolean => {
+            return !(typeof a === 'undefined');
+        });
+    }
+};
+
 export const logger = (debug: boolean, msg: string): void => {
     debug ? console.log('ControlMouseflowDebug: ' + msg) : null;
 }
 
 export const isSessionInitiated = (wid: string): boolean => {
-    return new RegExp('mf_' + wid).test(document.cookie);
+    if (is.string(wid)) {
+        return new RegExp('mf_' + wid).test(document.cookie);
+    }
+    return false;
 }
 
 export const validateConfig = (config: Config): Config => {
-    if (!(re.wid.test(config.websiteId))) {
-        throw Error('invalid websiteId provided');
-    }
-    if (config.locationRule.include === undefined || config.locationRule.countryCodes === undefined || (config.locationRule.countryCodes !== undefined && config.locationRule.countryCodes.length <= 0)) {
-        throw Error('invalid locationRule provided');
-    }
+    // if no optionalRule is set, treat every page as desired
     config.optionalRule = config.optionalRule || {
         pageRules: [],
         rest: {
@@ -102,6 +124,15 @@ export const validateConfig = (config: Config): Config => {
     // if no default behavior is set, the default default behavior is to record on exceptions
     config.locationRule.shouldRecordOnError = config.locationRule.shouldRecordOnError || true;
     config.debug = config.debug || false;
+    if (!is.defined(config.websiteId) || !(re.wid.test(config.websiteId))) {
+        throw Error('invalid websiteId provided');
+    }
+    if (!is.defined(config.locationRule.include, config.locationRule.countryCodes) || config.locationRule.countryCodes.length <= 0) {
+        throw Error('invalid locationRule provided');
+    }
+    if (is.defined(config.optionalRule) && !is.array(config.optionalRule.pageRules) || !is.number(config.optionalRule.rest.recordingRate)) {
+        throw Error('invalid optionalRule provided');
+    }
     config.isValid = true;
     return config;
 }
@@ -115,11 +146,10 @@ export const recordingRateMatch = (recordingRate: number): boolean => {
     then n will be 0 < n <= 25 around 25% of the time
     if r is 0 or 100 then always return false and true, respectively
     */
-    return Math.floor((Math.random() * 100) + 1) <= recordingRate;
-}
-
-export const isNumber = (item: any): boolean => {
-    return item !== undefined && typeof item === 'number' && !Number.isNaN(item);
+    if (is.number(recordingRate)) {
+        return Math.floor((Math.random() * 100) + 1) <= recordingRate;
+    }
+    return false;
 }
 
 export const getAndMatchLocation = async (locationRule: LocationRule, debug: boolean): Promise < boolean > => {
@@ -134,9 +164,22 @@ export const getAndMatchLocation = async (locationRule: LocationRule, debug: boo
     }
 }
 
-export const matchPath = (pathname: string, control: string): boolean => {
-    pathname = pathname.toLowerCase(), control = control.toLowerCase();
-    // remove extensions if present
-    const reg: RegExpExecArray = re.ext.exec(pathname);
-    return reg ? reg[0] === control : pathname === control;
+export const matchPath = (control: string, pathnames: string[]): boolean => {
+    if (is.string(control) && is.array(pathnames) && pathnames.length > 0) {
+        control = control.toLowerCase();
+        for (let i: number = 0; i < pathnames.length; i++) {
+            const pathname: string = pathnames[i].toLowerCase();
+            // remove extensions if present
+            const reg: RegExpExecArray = re.ext.exec(pathname);
+            // if the pathname of the rule set is equal to the control,
+            // then the client is on a desired page
+            if ((reg ? reg[0] === control : pathname === control)) {
+                return true;
+            }
+        }
+    } else if (is.string(control) && is.string(pathnames)) {
+        //@ts-ignore
+        return control === pathnames;
+    }
+    return false;
 }

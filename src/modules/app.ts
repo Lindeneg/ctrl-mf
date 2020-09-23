@@ -10,7 +10,7 @@ import {
     validateConfig,
     getAndMatchLocation,
     matchPath,
-    isNumber,
+    is,
     logger
 } from './util';
 
@@ -59,13 +59,13 @@ export class ControlMouseflow {
     }
 
     isOnDesiredPage(): boolean {
-        const currentPage = window.document.location.pathname;
+        const currentPage: string = window.document.location.pathname;
         let wasNotMatched: boolean = false;
         if (this.optionalRule.pageRules.length > 0) {
             for (let i: number = 0; i < this.optionalRule.pageRules.length; i++) {
                 const pageRule: PageRule = this.optionalRule.pageRules[i];
                 // if client is on a desired page
-                if (matchPath(pageRule.pathname, currentPage)) {
+                if (matchPath(currentPage, pageRule.pathnames)) {
                     // match the configured recording rate for that page
                     if (recordingRateMatch(pageRule.recordingRate)) {
                         this.log('page \'' + currentPage + '\' matched in rule set | recordingRate matched');
@@ -81,7 +81,7 @@ export class ControlMouseflow {
         }
         // ignore pages where wasNotMatched is true -> the dice should only be thrown once
         // however, if an unmatched page is at play, the configured recording rate for optionalRule.rest should be used
-        if (!wasNotMatched && isNumber(this.optionalRule.rest.recordingRate) && recordingRateMatch(this.optionalRule.rest.recordingRate)) {
+        if (!wasNotMatched && is.number(this.optionalRule.rest.recordingRate) && recordingRateMatch(this.optionalRule.rest.recordingRate)) {
             this.log('page \'' + currentPage + '\' not matched in rule set | recordingRate matched');
             return true;
         }
@@ -116,7 +116,7 @@ export class ControlMouseflow {
                 validatedConfig.debug
             ).init();
         } else {
-            // exceptions will have be thrown from the validateConfig call
+            // exceptions have been thrown from the validateConfig call
             // so this part will actually never be reached
             return;
         }
