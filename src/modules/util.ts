@@ -114,27 +114,30 @@ export const isSessionInitiated = (wid: string): boolean => {
 }
 
 export const validateConfig = (config: Config): Config => {
-    // if no optionalRule is set, treat every page as desired
-    config.optionalRule = config.optionalRule || {
-        pageRules: [],
-        rest: {
-            recordingRate: 100
+    if (is.defined(config)) {
+        // if no optionalRule is set, treat every page as desired
+        config.optionalRule = config.optionalRule || {
+            pageRules: [],
+            rest: {
+                recordingRate: 100
+            }
+        };
+        // if no default behavior is set, the default default behavior is to record on exceptions
+        config.locationRule.shouldRecordOnError = config.locationRule.shouldRecordOnError || true;
+        config.debug = config.debug || false;
+        if (!is.defined(config.websiteId) || !(re.wid.test(config.websiteId))) {
+            throw Error('invalid websiteId provided');
         }
-    };
-    // if no default behavior is set, the default default behavior is to record on exceptions
-    config.locationRule.shouldRecordOnError = config.locationRule.shouldRecordOnError || true;
-    config.debug = config.debug || false;
-    if (!is.defined(config.websiteId) || !(re.wid.test(config.websiteId))) {
-        throw Error('invalid websiteId provided');
+        if (!is.defined(config.locationRule.include, config.locationRule.countryCodes) || config.locationRule.countryCodes.length <= 0) {
+            throw Error('invalid locationRule provided');
+        }
+        if (is.defined(config.optionalRule) && !is.array(config.optionalRule.pageRules) || !is.number(config.optionalRule.rest.recordingRate)) {
+            throw Error('invalid optionalRule provided');
+        }
+        config.isValid = true;
+        return config;
     }
-    if (!is.defined(config.locationRule.include, config.locationRule.countryCodes) || config.locationRule.countryCodes.length <= 0) {
-        throw Error('invalid locationRule provided');
-    }
-    if (is.defined(config.optionalRule) && !is.array(config.optionalRule.pageRules) || !is.number(config.optionalRule.rest.recordingRate)) {
-        throw Error('invalid optionalRule provided');
-    }
-    config.isValid = true;
-    return config;
+    throw Error('no config provided');
 }
 
 export const recordingRateMatch = (recordingRate: number): boolean => {

@@ -124,3 +124,4 @@ window.ControlMouseflowInit({
 ### Todo
 - Implement more location lookup for fallback calls
 - Allow regular expressions for pathnames in pageRules
+- Implement unit tests
