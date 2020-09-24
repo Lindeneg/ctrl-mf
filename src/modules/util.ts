@@ -36,7 +36,7 @@ const getLocation = async (debug: boolean): Promise < string > => {
     for (let i: number = 0; i < locationCalls.length; i++) {
         logger(debug, 'fetching client location from \'' + locationCalls[i] + '\'');
         const call: string = await get(locationCalls[i], debug);
-        // get will return an empty string on a non-20* response
+        // get will return an empty string on a non-200 response
         if (call.length > 0) {
             logger(debug, 'successfully fetched location');
             return call;
