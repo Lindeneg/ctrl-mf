@@ -48,12 +48,12 @@ export class ControlMouseflow {
                 this.injectMouseflow();
             } else {
                 // client is still on the correct page but location is unknown
-                (async function (instance: ControlMouseflow) {
+                (async function () {
                     // fetch the location and match it with the location rule
-                    const shouldInject = await instance.isFromDesiredCountry();
+                    const shouldInject: boolean = await getAndMatchLocation(this.locationRule, this.debug);
                     // inject mouseflow if the match returns true
-                    shouldInject ? instance.injectMouseflow() : null;
-                })(this);
+                    shouldInject ? this.injectMouseflow() : null;
+                }).bind(this)();
             }
         }
     }
@@ -90,20 +90,30 @@ export class ControlMouseflow {
         return false;
     }
 
-    async isFromDesiredCountry(): Promise < boolean > {
-        return await getAndMatchLocation(this.locationRule, this.debug);
-    }
-
     injectMouseflow(): void {
-        this.log('injecting mouseflow');
-        ( < any > window)._mfq = ( < any > window)._mfq || [];
-        (function (wid: string) {
-            const mf = document.createElement("script");
-            mf.type = "text/javascript";
-            mf.defer = true;
-            mf.src = "//cdn.mouseflow.com/projects/" + wid + ".js";
-            document.getElementsByTagName("head")[0].appendChild(mf);
-        })(this.wid);
+        if (!(typeof ( < any > window)._mfq === 'undefined') && !(typeof ( < any > window).mouseflow === 'undefined')) {
+            if (( < any > window).mouseflow.websiteId === this.wid) {
+                this.debug && !(typeof ( < any > window).mouseflowDebug !== 'undefined') ? ( < any > window).mouseflow.debug() : null;
+                if (( < any > window).mouseflow.isRecording()) {
+                    this.log('mouseflow already injected and recording');
+                } else {
+                    this.log('mouseflow already injected, starting recording');
+                    ( < any > window).mouseflow.start();
+                }
+            } else {
+                this.log('mouseflow already injected but websiteId does not match the config');
+            }
+        } else {
+            this.log('injecting mouseflow');
+            ( < any > window)._mfq = ( < any > window)._mfq || [];
+            (function (wid: string) {
+                const mf = document.createElement("script");
+                mf.type = "text/javascript";
+                mf.defer = true;
+                mf.src = "//cdn.mouseflow.com/projects/" + wid + ".js";
+                document.getElementsByTagName("head")[0].appendChild(mf);
+            })(this.wid);
+        }
     }
 
     static start(config: Config) {
