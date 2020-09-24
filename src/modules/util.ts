@@ -20,19 +20,22 @@ const checkType = (args: any[], compare: (a: any) => boolean): boolean => {
     return true && args.length > 0;
 }
 
-const get = async (url: string): Promise < string > => {
-    const res: Response = await fetch(url);
-    if (res.status === 200) {
-        return res.text();
-    } else {
-        return '';
+const get = async (url: string, debug: boolean): Promise < string > => {
+    try {
+        const res: Response = await fetch(url);
+        if (res.status === 200) {
+            return res.text();
+        }
+    } catch(err) {
+        logger(debug, 'request exception, likely blocked by client');
     }
+    return '';
 }
 
 const getLocation = async (debug: boolean): Promise < string > => {
     for (let i: number = 0; i < locationCalls.length; i++) {
         logger(debug, 'fetching client location from \'' + locationCalls[i] + '\'');
-        const call: string = await get(locationCalls[i]);
+        const call: string = await get(locationCalls[i], debug);
         // get will return an empty string on a non-20* response
         if (call.length > 0) {
             logger(debug, 'successfully fetched location');

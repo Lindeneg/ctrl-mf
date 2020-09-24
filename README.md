@@ -106,11 +106,11 @@ window.ControlMouseflowInit({
     optionalRule: {
         pageRules: [
           {
-            pathname: ['/', '/blog'],
+            pathnames: ['/', '/blog'],
             recordingRate: 70
           },
           {
-            pathname: ['/contact'],
+            pathnames: ['/contact'],
             recordingRate: 30
           }
         ],
