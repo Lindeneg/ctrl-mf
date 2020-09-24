@@ -1,3 +1,5 @@
+export const REQUEST_ERROR: string = 'requestError';
+
 export const locationCalls = [
     '/cdn-cgi/trace',
     'https://ipapi.co/json/'

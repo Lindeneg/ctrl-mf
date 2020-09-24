@@ -4,6 +4,7 @@ import {
     Is
 } from './types';
 import {
+    REQUEST_ERROR,
     locationCalls,
     re
 } from './constants';
@@ -27,7 +28,8 @@ const get = async (url: string, debug: boolean): Promise < string > => {
             return res.text();
         }
     } catch(err) {
-        logger(debug, 'request exception, likely blocked by client');
+        logger(debug, 'request failed, likely blocked by client');
+        return REQUEST_ERROR;
     }
     return '';
 }
@@ -36,6 +38,9 @@ const getLocation = async (debug: boolean): Promise < string > => {
     for (let i: number = 0; i < locationCalls.length; i++) {
         logger(debug, 'fetching client location from \'' + locationCalls[i] + '\'');
         const call: string = await get(locationCalls[i], debug);
+        // if a request error occur, likely due to client blocking it
+        // stop the loop, as subsequent calls will likely suffer the same fate
+        if (call === REQUEST_ERROR) { break; }
         // get will return an empty string on a non-200 response
         if (call.length > 0) {
             logger(debug, 'successfully fetched location');
@@ -126,7 +131,7 @@ export const validateConfig = (config: Config): Config => {
             }
         };
         // if no default behavior is set, the default default behavior is to record on exceptions
-        config.locationRule.shouldRecordOnError = config.locationRule.shouldRecordOnError || true;
+        config.locationRule.shouldRecordOnError = !(typeof config.locationRule.shouldRecordOnError === 'undefined') ? config.locationRule.shouldRecordOnError : true;
         config.debug = config.debug || false;
         if (!is.defined(config.websiteId) || !(re.wid.test(config.websiteId))) {
             throw Error('invalid websiteId provided');
