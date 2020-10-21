@@ -10,5 +10,6 @@
     "./src/modules/app.ts",
     "./src/modules/util.ts",
     "./src/modules/types.ts",
+    "./src/modules/constants.ts",
   ]
 }
