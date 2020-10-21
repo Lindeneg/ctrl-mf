@@ -91,21 +91,21 @@ export class ControlMouseflow {
     }
 
     injectMouseflow(): void {
-        if (!(typeof ( < any > window)._mfq === 'undefined') && !(typeof ( < any > window).mouseflow === 'undefined')) {
-            if (( < any > window).mouseflow.websiteId === this.wid) {
-                this.debug && !(typeof ( < any > window).mouseflowDebug !== 'undefined') ? ( < any > window).mouseflow.debug() : null;
-                if (( < any > window).mouseflow.isRecording()) {
+        if (!(typeof window["_mfq"] === 'undefined') && !(typeof window["mouseflow"] === 'undefined')) {
+            if (window["mouseflow"].websiteId === this.wid) {
+                this.debug && !(typeof window["mouseflowDebug"] !== 'undefined') ? window["mouseflow"].debug() : null;
+                if (window["mouseflow"].isRecording()) {
                     this.log('mouseflow already injected and recording');
                 } else {
                     this.log('mouseflow already injected, starting recording');
-                    ( < any > window).mouseflow.start();
+                    window["mouseflow"].start();
                 }
             } else {
                 this.log('mouseflow already injected but websiteId does not match the config');
             }
         } else {
             this.log('injecting mouseflow');
-            ( < any > window)._mfq = ( < any > window)._mfq || [];
+            window["_mfq"] = window["_mfq"] || [];
             (function (wid: string) {
                 const mf = document.createElement("script");
                 mf.type = "text/javascript";

@@ -2,4 +2,5 @@ import {
   ControlMouseflow
 } from './modules/app';
 
-( < any > window).ControlMouseflowInit = ControlMouseflow.start;
+
+window["ControlMouseflowInit"] = ControlMouseflow.start;
