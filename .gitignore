@@ -16,6 +16,10 @@ tmp
 # Coverage reports
 coverage
 
+# In devolopment
+tests/*
+jest.config.js
+
 # API keys and secrets
 .env
 
