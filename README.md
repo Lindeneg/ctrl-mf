@@ -1,13 +1,16 @@
-# work-in-progress
-______________________________________
 ### Control Mouseflow Injection
 ______________________________________
 - Include/Exclude countries
 - Include/Exclude pages
 - Set recording rates for multiple pages
 ______________________________________
+### Todo
+- Implement more location lookup for fallback calls
+- Allow regular expressions for pathnames in pageRules
+- Implement unit tests
+______________________________________
 ### Usage
-\--- ./dist/bundle.js exposes **ControlMouseflowInit(config)**
+\--- ./dist/bundle.js exposes **ControlMouseflowInit(config)** in the *window* object
 
 \--- config is of the following format:
 
@@ -120,8 +123,3 @@ window.ControlMouseflowInit({
     }
 });
 ```
-
-### Todo
-- Implement more location lookup for fallback calls
-- Allow regular expressions for pathnames in pageRules
-- Implement unit tests
